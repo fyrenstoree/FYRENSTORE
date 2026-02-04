@@ -48,6 +48,68 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
       height: fit-content;
     }
+    
+    /* Mobile Layout Styles */
+    .mobile-header {
+      display: none;
+      background: linear-gradient(135deg, #0096c7, #00b4d8);
+      color: white;
+      padding: 15px;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+    }
+    .mobile-header h2 {
+      margin: 0 0 10px 0;
+      font-size: 20px;
+    }
+    .mobile-header .month-nav {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      align-items: center;
+    }
+    .mobile-header .nav-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .mobile-header #monthDisplay {
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .mobile-summary {
+      display: none;
+      background: white;
+      border-radius: var(--radius);
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .mobile-summary .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .mobile-summary .summary-item:last-child {
+      border-bottom: none;
+    }
+    .mobile-summary .summary-label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .mobile-summary .summary-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-dark);
+    }
+    
     .status-card {
       padding: 15px;
       border-radius: var(--radius);
@@ -217,18 +279,113 @@
     }
     .modal-btns { text-align: right; margin-top: 10px; }
 
-    /* Responsive / HP Mode */
+    /* Responsive - Desktop optimized */
     @media (max-width: 768px) {
-      .app { flex-direction: column; }
-      .right { width: 100%; }
-      .controls { justify-content: space-between; }
-      .btn, .btn-ghost { flex: 1; text-align: center; }
-      table { font-size: 14px; overflow-x: auto; display: block; }
+      body {
+        padding: 0;
+        background: var(--bg);
+      }
+      .app {
+        flex-direction: column;
+        gap: 0;
+        max-width: 100%;
+        margin: 0;
+      }
+      .left {
+        background: var(--bg);
+        border-radius: 0;
+        padding: 15px;
+        box-shadow: none;
+        order: 2;
+      }
+      .right {
+        width: 100%;
+        border-radius: 0;
+        padding: 15px;
+        box-shadow: none;
+        height: auto;
+        background: var(--bg);
+        order: 1;
+      }
+      .mobile-header {
+        display: block;
+      }
+      .mobile-summary {
+        display: block;
+      }
+      h1 {
+        display: none;
+      }
+      .search-box {
+        margin-bottom: 15px;
+      }
+      .controls {
+        flex-direction: row;
+        gap: 8px;
+      }
+      .btn, .btn-ghost {
+        flex: 1;
+        padding: 10px;
+        font-size: 12px;
+      }
+      table {
+        font-size: 12px;
+        width: 100%;
+      }
+      table thead {
+        font-size: 11px;
+      }
+      table td, table th {
+        padding: 6px 4px;
+      }
+      .action-btn {
+        padding: 4px 8px;
+        font-size: 10px;
+        margin: 2px;
+      }
+      .chart-container {
+        height: 350px;
+        padding: 10px;
+      }
+      .status-card {
+        padding: 12px;
+      }
+      .status-label {
+        font-size: 11px;
+      }
+      .status-amount {
+        font-size: 16px;
+      }
+      .month-nav {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
   <div class="app">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+      <h2>Keuangan FYREN STORE</h2>
+      <div class="month-nav" id="mobileMonthNav">
+        <button id="prevMonthMobile" class="nav-btn">&lt;</button>
+        <div id="monthDisplayMobile" style="color:white;font-weight:700;"></div>
+        <button id="nextMonthMobile" class="nav-btn">&gt;</button>
+      </div>
+    </div>
+
+    <!-- Mobile Summary -->
+    <div class="mobile-summary">
+      <div class="summary-item">
+        <span class="summary-label">Total Harga Jual</span>
+        <span class="summary-value" id="mobileSummaryJual">Rp 0</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Total Laba</span>
+        <span class="summary-value" id="mobileSummaryLaba">Rp 0</span>
+      </div>
+    </div>
+
     <div class="left">
       <h1>Keuangan FYREN STORE</h1>
       <div class="search-box">
@@ -527,6 +684,14 @@
       recalc();
       attachRowListeners();
       monthDisplay.textContent=monthNames[curM]+' '+curY;
+      // Update mobile header
+      const monthDisplayMobile = document.getElementById('monthDisplayMobile');
+      if(monthDisplayMobile) monthDisplayMobile.textContent = monthNames[curM]+' '+curY;
+      // Update mobile summary
+      const mobileSummaryJual = document.getElementById('mobileSummaryJual');
+      const mobileSummaryLaba = document.getElementById('mobileSummaryLaba');
+      if(mobileSummaryJual) mobileSummaryJual.textContent = fmt(rbJual.textContent.replace('Rp ', '').replace(/\./g, ''));
+      if(mobileSummaryLaba) mobileSummaryLaba.textContent = fmt(rbLaba.textContent.replace('Rp ', '').replace(/\./g, ''));
       updateDailyChart();
     }
 
@@ -616,6 +781,22 @@
       saveMonth();
       let y=curY,m=curM+1;if(m>11){m=0;y++;}loadSet(y,m);
     };
+    // Mobile Month nav
+    const prevMonthMobile = document.getElementById('prevMonthMobile');
+    const nextMonthMobile = document.getElementById('nextMonthMobile');
+    if(prevMonthMobile) {
+      prevMonthMobile.onclick=()=>{
+        saveMonth();
+        let y=curY,m=curM-1;if(m<0){m=11;y--;}loadSet(y,m);
+      };
+    }
+    if(nextMonthMobile) {
+      nextMonthMobile.onclick=()=>{
+        saveMonth();
+        let y=curY,m=curM+1;if(m>11){m=0;y++;}loadSet(y,m);
+      };
+    }
+    
     function loadSet(y,m){curY=y;curM=m;rows=loadMonth(y,m);render();}
 
     // Mode toggle
